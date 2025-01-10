@@ -53,7 +53,10 @@ export class AccountsController {
     type: Account,
   })
   @ApiResponse({ status: 404, description: '계좌를 찾을 수 없음' })
-  public update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
+  public update(
+    @Param('id') id: string,
+    @Body() updateAccountDto: UpdateAccountDto,
+  ) {
     return this.accountsService.update(+id, updateAccountDto);
   }
 
