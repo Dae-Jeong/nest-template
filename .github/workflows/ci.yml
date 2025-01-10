@@ -14,6 +14,21 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v4
     
@@ -29,12 +44,23 @@ jobs:
         
     - name: Install dependencies
       run: pnpm install
+
+    - name: Create test env file
+      run: |
+        echo "NODE_ENV=test" > env/.env.test
+        echo "DB_HOST=localhost" >> env/.env.test
+        echo "DB_PORT=5432" >> env/.env.test
+        echo "DB_USERNAME=test_user" >> env/.env.test
+        echo "DB_PASSWORD=test_password" >> env/.env.test
+        echo "DB_DATABASE=test_db" >> env/.env.test
+        
+    - name: Build
+      run: pnpm build
       
     - name: Run lint
       run: pnpm lint
       
     - name: Run tests
+      env:
+        NODE_ENV: test
       run: pnpm test
-      
-    - name: Build
-      run: pnpm build 
